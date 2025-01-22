@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tool_manage import tool_forward_everyone, tool_default, tool_vat_deal, tool_vat_upload
+from tool_manage import tool_forward_everyone, tool_default, tool_vat_deal, tool_vat_upload, tool_ansu_cs
 
 
 # 组件触发事件
@@ -13,7 +13,7 @@ def on_tree_click(event, tool):
 
     # 获取该项的文本（即名称）
     item_text = bar_list.item(item_id, 'text')
-    print(f"点击的项名称: {item_text}")
+    # print(f"点击的项名称: {item_text}")
 
     # 动态调用 frame_change 函数并传递工具和点击项名称
     if item_text == '企微转发':
@@ -24,6 +24,9 @@ def on_tree_click(event, tool):
         frame_change(tool, first_frame)
     elif item_text == '税金单上传':
         first_frame = tool_vat_upload.tool_vat_upload_window(tool)
+        frame_change(tool, first_frame)
+    elif item_text == '客服转发':
+        first_frame = tool_ansu_cs.tool_ansu_cs_window(tool)
         frame_change(tool, first_frame)
     else:
         default_frame = tool_default.tool_default_window(tool)
@@ -71,7 +74,7 @@ def tool_left_window(tool):
     bar_list_manage = {
         '通用功能': ['企微转发'],
         '天图系统': ['税金单处理', '税金单上传'],
-        '安速系统': []
+        '安速系统': ['客服转发']
     }
 
     for first_tree in bar_list_manage.__reversed__():
