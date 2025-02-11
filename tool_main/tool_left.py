@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tool_manage import tool_forward_everyone, tool_default, tool_vat_deal, tool_vat_upload, tool_ansu_cs
+from tool_manage import tool_forward_everyone, tool_default, tool_vat_deal, tool_vat_upload, tool_ansu_cs, tool_ansu_simple_cs
 
 
 # 组件触发事件
@@ -27,6 +27,9 @@ def on_tree_click(event, tool):
         frame_change(tool, first_frame)
     elif item_text == '客服转发':
         first_frame = tool_ansu_cs.tool_ansu_cs_window(tool)
+        frame_change(tool, first_frame)
+    elif item_text == '单独发送':
+        first_frame = tool_ansu_simple_cs.tool_ansu_simple_cs_window(tool)
         frame_change(tool, first_frame)
     else:
         default_frame = tool_default.tool_default_window(tool)
@@ -74,7 +77,7 @@ def tool_left_window(tool):
     bar_list_manage = {
         '通用功能': ['企微转发'],
         '天图系统': ['税金单处理', '税金单上传'],
-        '安速系统': ['客服转发']
+        '安速系统': ['客服转发', '单独发送']
     }
 
     for first_tree in bar_list_manage.__reversed__():

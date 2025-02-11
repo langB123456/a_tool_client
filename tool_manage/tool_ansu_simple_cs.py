@@ -12,7 +12,7 @@ import pytesseract, os, pyautogui, cv2, math, random, string, subprocess
 import numpy as np
 import subprocess
 import tkinter as tk
-
+import common.use_process
 
 # 登录安速
 def get_token(base_url, user, pwd):
@@ -286,6 +286,18 @@ def search_sender(search_path, clear_path):
     pyautogui.click()
 
 
+def new_search_sender(user_name, search_path):
+    # 搜索输入框查询
+    search_x, search_y = get_photo_position(search_path)
+    pyautogui.moveTo(search_x, search_y)
+    pyautogui.click()
+    keyboard.write(user_name)
+    # keyboard.press_and_release('enter')
+    time.sleep(1)
+    pyautogui.moveTo(search_x + 70, search_y + 70)
+    pyautogui.click()
+
+
 # 点击逐条转发按钮
 def forward_item(file_path):
     forward_item_x, forward_item_y = get_photo_position(file_path)
@@ -310,6 +322,18 @@ def send_button(file_path):
 # 发送文本信息
 def send_text(file_path):
     copy_text_file_to_clipboard(file_path)
+    time.sleep(0.5)
+    keyboard.press_and_release('ctrl+v')
+    keyboard.press_and_release('enter')
+
+
+def new_send_text(file_path, group_name):
+    copy_text_file_to_clipboard(file_path)
+    time.sleep(0.5)
+    keyboard.press_and_release('ctrl+v')
+    time.sleep(0.5)
+    text = '\n' + get_customer_and_shipment(group_name)
+    pyperclip.copy(text)
     time.sleep(0.5)
     keyboard.press_and_release('ctrl+v')
     keyboard.press_and_release('enter')
@@ -457,6 +481,18 @@ def get_excel_user(excel_path, sheet):
         print(e)
 
 
+def new_get_excel_user(excel_path, sheet):
+    workbook = xlrd.open_workbook(excel_path)
+    worksheet = workbook.sheet_by_name(sheet)
+    row_count = worksheet.nrows
+    user_names = []
+    for row_num in range(1, row_count):
+        user_name = worksheet.cell_value(row_num, 1)
+        if user_name is not None:
+            user_names.append(user_name)
+    return user_names
+
+
 # 计算耗时
 def count_time(time_str_1, time_str_2):
     # 定义时间格式
@@ -502,6 +538,22 @@ def send_result_for_me(user_name, forward_count, success_count, start_time, end_
     time.sleep(0.5)
     keyboard.press_and_release('ctrl+v')
     keyboard.press_and_release('enter')
+
+
+# 获取客户名称和运单号
+def get_customer_and_shipment(group_name):
+    deal_path = 'D:\\group_send\\ansu_deal\\安速-客服-数据发送.xlsx'
+    read_wb = openpyxl.load_workbook(deal_path)
+    read_ws = read_wb['运单对应群名']
+    read_row_count = get_max_row(read_ws)
+    str_txt = ''
+    for i in range(2, read_row_count + 1):
+        deal_group_name = read_ws.cell(row=i, column=4).value
+        if deal_group_name == group_name:
+            customer_name = read_ws.cell(row=i, column=1).value
+            shipment_num = read_ws.cell(row=i, column=2).value
+            str_txt = str_txt + customer_name + ' ' + shipment_num + '\n'
+    return str_txt
 
 
 # 主流程 def main_use_flow(event):
@@ -598,7 +650,49 @@ def main_use_flow():
         wake_up_my_client()
 
 
+def new_main_use_flow():
+    try:
+        start_time = time.asctime(time.localtime(time.time()))
+        wake_up_work_chat()
+        deal_excel = 'D:\\group_send\\ansu_deal\\安速-客服-数据发送.xlsx'
+        user_names = new_get_excel_user(deal_excel, 'Sheet3')
+        for i in range(0, len(user_names)):
+            get_picture('D:\\group_send\\picture_manage\\search_box_photo.png', 100, 15, 200, 50)
+            user_name = user_names[i]
+            print(user_name)
+            new_search_sender(user_name, 'D:\\group_send\\picture_manage\\search_box_photo.png')
+            time.sleep(2)
+            text_input_box_x, text_input_box_y = get_photo_position('D:\\group_send\\picture_manage\\text_input_box.png')
+            pyautogui.moveTo(text_input_box_x, text_input_box_y + 35)
+            # 发送文本信息
+            new_send_text('D:\\group_send\\upload_file\\消息内容.txt', user_name)
+            files = get_file_name('D:\\group_send\\upload_file')
+            # 发送文件信息
+            for file in files:
+                send_file(file)
+            time.sleep(0.5)
+            keyboard.press_and_release('enter')
+            time.sleep(0.5)
+        end_time = time.asctime(time.localtime(time.time()))
+        # 发送结果
+        wb = openpyxl.load_workbook(deal_excel)
+        ws = wb['Sheet3']
+        forward_count = get_max_row(ws)
+        success_count = 0
+        for row in range(2, forward_count + 1):
+            if ws.cell(row, 3).value == '' or ws.cell(row, 3).value is None:
+                success_count += 1
+                ws.cell(row=row, column=3, value='已发送')
+        wb.save(deal_excel)
+        send_result_for_me('安速客服-影刀业务对接', forward_count - 1, success_count, start_time, end_time)
+    except Exception as e:
+        print(e)
+
+
 def cs_forward_main(base_url, user, pwd):
+    global able_run
+    able_run = 0
+    common.use_process.operation_manage()
     # 设置 Tesseract 的路径(仅在必要时，视你的安装情况而定)
     pytesseract.pytesseract.tesseract_cmd = r'D:\group_send\Tesseract-OCR\tesseract.exe'
     # pyautogui禁用故障保护
@@ -613,19 +707,21 @@ def cs_forward_main(base_url, user, pwd):
     system_download(base_url, user, pwd)
     sales_match_group()
     time.sleep(1)
-    main_use_flow()
+    new_main_use_flow()
+    able_run = 1
 
 
 # 客户端 工具页
-def tool_ansu_cs_window(tool):
+def tool_ansu_simple_cs_window(tool):
     tool_use_page = tk.Frame(tool, height=884, width=1000, background='white', highlightcolor='black', relief='ridge')
     # 右边功能窗口
-    r1 = tk.Label(tool_use_page, text='安速客服 根据运单号转发', background='white', justify='left')
+    r1 = tk.Label(tool_use_page, text='安速客服 根据运单号 逐个发送', background='white', justify='left')
     r1.place(x=0, y=0)
 
     d1 = tk.Label(tool_use_page, text='base_url', background='white', justify='left')
     d1.place(x=0, y=25)
 
+    # 设置默认安速系统环境
     e1 = tk.Entry(tool_use_page, width=30, relief='groove')
     e1.insert(0, 'http://aaa-test.fthj-dev.com/')
     e1.place(x=100, y=28)
@@ -659,16 +755,7 @@ def tool_ansu_cs_window(tool):
                              background='#AFEEEE',
                              command=clear)
     clear_button.place(x=40, y=106)
+
+    # 模块位置
     tool_use_page.place(x=220, y=20)
     return tool_use_page
-
-
-"""
-if __name__ == '__main__':
-    # base_url = "http://fba.ansuex.com/"
-    base_url = "http://aaa-test.fthj-dev.com/"
-    user = 'admin'
-    pwd = '123456'
-    cs_forward_main(base_url, user, pwd)
-    # sales_match_group()
-"""

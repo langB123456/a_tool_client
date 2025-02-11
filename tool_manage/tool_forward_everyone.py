@@ -266,7 +266,10 @@ def send_result_for_me(user_name, forward_count, success_count, start_time, end_
     pyautogui.moveTo(search_x + 70, search_y + 70)
     pyautogui.click()
     time.sleep(1)
-    text = f'需转发群数量：{forward_count}\n发送成功：{success_count}\n发送失败：{forward_count - success_count}\n失败原因：当前企微无法查到该用户,请维护正确的群名称\n耗时详细：{hours}:{minutes}:{seconds}'
+    if forward_count - success_count > 0:
+        text = f'需转发群数量：{forward_count}\n发送成功：{success_count}\n发送失败：{forward_count - success_count}\n失败原因：当前企微无法查到该用户,请维护正确的群名称\n耗时详细：{hours}:{minutes}:{seconds}'
+    else:
+        text = f'需转发群数量：{forward_count}\n发送成功：{success_count}\n发送失败：{forward_count - success_count}\n耗时详细：{hours}:{minutes}:{seconds}'
     pyperclip.copy(text)
     time.sleep(0.5)
     keyboard.press_and_release('ctrl+v')
@@ -385,7 +388,8 @@ def main_use_flow():
 
 def forward_everyone_main():
     # 设置 Tesseract 的路径(仅在必要时，视你的安装情况而定)
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    pytesseract.pytesseract.tesseract_cmd = r'D:\group_send\Tesseract-OCR\tesseract.exe'
     # pyautogui禁用故障保护
     pyautogui.FAILSAFE = False
     # pyautogui增加暂停时间
@@ -404,26 +408,26 @@ def tool_forward_everyone_window(tool):
     r1 = tk.Label(tool_use_page, text='企业微信群转发', background='white', justify='left')
     r1.place(x=0, y=0)
 
-    d1 = tk.Label(tool_use_page, text='main_path', background='white', justify='left')
-    d1.place(x=0, y=25)
+    # 说明内容
+    describe = ('说明：该功能用于本地微信群发，执行前须知：\n'
+                '1、电脑登录企业微信；\n'
+                '2、在对应路径维护发送信息；\n'
+                '3、在对应xlsx维护发送人；\n'
+                '4、执行中不要操作键盘和鼠标避免转发内容出错')
 
-    e1 = tk.Entry(tool_use_page, width=23, relief='groove')
-    e1.place(x=100, y=28)
+    d3 = tk.Label(tool_use_page, text=describe, background='white', justify='left')
+    d3.place(x=0, y=25)
 
-    d2 = tk.Label(tool_use_page, text='picture_path', background='white')
-    d2.place(x=0, y=45)
-
-    e2 = tk.Entry(tool_use_page, width=23, relief='groove')
-    e2.place(x=100, y=48)
-
+    # 执行按钮
     implement_button = tk.Button(tool_use_page,
                                  text='执行',
                                  background='#AFEEEE',
                                  command=forward_everyone_main)
-    implement_button.place(x=2, y=76)
+    implement_button.place(x=2, y=126)
 
     tool_use_page.place(x=220, y=20)
     return tool_use_page
+
 
 
 

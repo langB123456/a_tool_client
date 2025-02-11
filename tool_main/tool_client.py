@@ -34,5 +34,6 @@ def tool_window():
     tool.mainloop()
 
 
+# pyinstaller -p D:\ForwardEveryone\.venv\Lib\site-packages -i D:\ForwardEveryone\dog_icon.ico forward_demo.py
 if __name__ == '__main__':
     tool_window()
