@@ -690,9 +690,6 @@ def new_main_use_flow():
 
 
 def cs_forward_main(base_url, user, pwd):
-    global able_run
-    able_run = 0
-    common.use_process.operation_manage()
     # 设置 Tesseract 的路径(仅在必要时，视你的安装情况而定)
     pytesseract.pytesseract.tesseract_cmd = r'D:\group_send\Tesseract-OCR\tesseract.exe'
     # pyautogui禁用故障保护
@@ -708,7 +705,6 @@ def cs_forward_main(base_url, user, pwd):
     sales_match_group()
     time.sleep(1)
     new_main_use_flow()
-    able_run = 1
 
 
 # 客户端 工具页

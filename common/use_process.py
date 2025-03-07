@@ -66,13 +66,15 @@ class ProcessManager:
 
 # 使用进程
 def operation_manage():
-    global able_run
     manager = ProcessManager()
     manager.start()
-    if keyboard.wait('esc'):
-        manager.stop()
-    if able_run == 1:
-        manager.stop()
+    while True:
+        if keyboard.is_pressed('esc'):
+            print('Ctrl+C被按下')
+            manager.pause()
+            manager.stop()
+            break
+
 
 # if __name__ == "__main__":
 #     manager = ProcessManager()
