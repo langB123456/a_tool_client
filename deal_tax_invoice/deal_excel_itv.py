@@ -89,11 +89,7 @@ def get_Tax_ID(data):
             if re.search(pattern, data[i]):
                 result = re.findall(r'^\s?GB\d{12}$', data[i])
                 Tax_ID_list = Tax_ID_list + result
-    if len(Tax_ID_list) == 1:
-        return Tax_ID_list[0].replace(" ", "")
-    else:
-        return Tax_ID_list[1].replace(" ", "")
-
+    return Tax_ID_list[0].replace(" ", "")
 
 # 获取申报总货值 pdf_declarat_values
 def get_good_value(data):
